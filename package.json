@@ -1,5 +1,5 @@
 {
-  "name": "pixi-template",
+  "name": "tictactoe",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "pixi-sound": "^3.0.4",
-    "pixi.js": "^5.2.4"
+    "pixi.js": "^5.2.1"
   },
   "devDependencies": {
     "webpack": "^4.43.0",
@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "webpack",
-    "start": "webpack-dev-server --mode development --hot",
+    "dev": "webpack-dev-server --mode development --hot",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
