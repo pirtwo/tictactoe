@@ -1,4 +1,5 @@
 import Grid2d from './grid2d';
+import Player from './player';
 
 export default class TicTacNode {
     constructor({
@@ -16,11 +17,12 @@ export default class TicTacNode {
     }
 
     getValue() {
-        if (this.getWinner() == 'x')
+        let winner = this.getWinner();
+        if(winner == 'x')
             return 1;
-        if (this.getWinner() == 'o')
+        if(winner == 'o')
             return -1;
-        else return 0;
+        return 0;
     }
 
     getSuccessors() {
@@ -30,9 +32,8 @@ export default class TicTacNode {
             if (cell.value === 0) {
                 child = this.clone();
                 child.parent = this;
-                child.board.setCell(cell.row, cell.col, this.getRival());
-                child.player.sign = this.getRival();
-                child.player.isMaximization = !this.player.isMaximization;
+                child.player = this.getRival();
+                child.board.setCell(cell.row, cell.col, child.player.sign);
                 successors.push(child);
             }
         }
@@ -40,6 +41,12 @@ export default class TicTacNode {
     }
 
     getWinner() {
+        let diameter1 = [...this.board]
+            .filter(cell => cell.row == cell.col);
+        let diameter2 = [...this.board]
+            .filter(cell => cell.row == Math.abs(cell.col - (this.board.colNum - 1)));
+
+        
         for (const row of this.board.rows()) {
             if (row.every(cell => cell === 'x'))
                 return 'x';
@@ -54,11 +61,6 @@ export default class TicTacNode {
                 return 'o';
         }
 
-        let diameter1 = [...this.board.cells]
-            .filter(cell => cell.row == cell.col);
-        let diameter2 = [...this.board.cells]
-            .filter(cell => cell.row == Math.abs(cell.col - this.board.colNum - 1));
-
         if (diameter1.every(cell => cell.value == 'x') ||
             diameter2.every(cell => cell.value == 'x')
         ) return 'x';
@@ -71,7 +73,10 @@ export default class TicTacNode {
     }
 
     getRival() {
-        return this.player.sign == 'x' ? 'o' : 'x';
+        return new Player({
+            sign: this.player.sign === 'x' ? 'o' : 'x',
+            isMaximization: !this.player.isMaximization
+        });
     }
 
     clone() {
