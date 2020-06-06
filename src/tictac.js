@@ -1,4 +1,4 @@
-import Grid2d from './grid2d';
+import Grid2D from './grid2d';
 
 export default class TicTacToe {
     constructor(dimension) {
@@ -9,10 +9,7 @@ export default class TicTacToe {
         this.undoList = [];
         this.redoList = [];
         this.dimension = dimension;
-        this.board = new Grid2d({
-            rowNum: this.dimension,
-            colNum: this.dimension
-        }).fill(0);
+        this.board = new Grid2D(this.dimension, this.dimension).fill(0);
     }
 
     nextTurn() {
