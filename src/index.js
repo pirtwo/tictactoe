@@ -89,7 +89,7 @@ function setup(loader, resources) {
         cell.on('pointertap', (e) => {
             console.log(cell.grid);
 
-            if (!tictac.playerTurn.isCpuPlayer) {
+            if (!isPaused && !tictac.playerTurn.isCpuPlayer) {
                 tictac.execute(new Move({
                     row: cell.grid.row,
                     col: cell.grid.col,
@@ -132,7 +132,7 @@ function setup(loader, resources) {
     window.addEventListener('resize', () => scaleWindow(app.view));
 
     app.ticker.add(delta => {
-        if (tictac.playerTurn.isCpuPlayer && !isCupThinking) {
+        if (!isPaused && !isCupThinking && tictac.playerTurn.isCpuPlayer) {
             isCupThinking = true;
             cpuPlay(tictac, worker, 10);
         }
