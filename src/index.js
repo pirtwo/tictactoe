@@ -3,6 +3,8 @@ import Sound from 'pixi-sound';
 import TicTac from './tictac';
 import Player from './player';
 import Move from './move';
+import loadFont from '../lib/webfont';
+import scaleWindow from '../lib/scale';
 
 const app = new PIXI.Application({
     antialias: true,
@@ -21,21 +23,42 @@ const {
 } = PIXI;
 
 document.body.appendChild(app.view);
+loadFont(['Baumans', 'Snippet'], init);
 
-setup();
+function init() {
+    setup();
+}
 
 function setup(loader, resources) {
     // game setup 
     app.stop();
+
+    const score = {
+        x: 0,
+        o: 0,
+        draw: 0
+    };
+
+    const labelTextStyle = new TextStyle({
+        fontFamily: 'Baumans',
+        fontSize: 35,
+        fill: 'white',
+        align: 'left',
+    });
 
     const
         tictac = new TicTac(3),
         worker = new Worker('./js/tictac-worker.js'),
         cellSize = 250,
         grid = createGrid(3, 3, cellSize),
-        xoCtx = new Graphics();
+        xoCtx = new Graphics(),
+        menu = new Container(),
+        body = new Container(),
+        scoreLabel = new Text('', labelTextStyle),
+        stateLabel = new Text('', labelTextStyle);
 
-    let isCupThinking = false;
+    let isPaused = false,
+        isCupThinking = false;
 
     // assuming the player x is a max
     // and player o is min
@@ -43,21 +66,24 @@ function setup(loader, resources) {
     tictac.playerTwo = new Player('o', true);
     tictac.playerTurn = tictac.playerOne;
 
-    worker.onmessage = msg => {
-        console.log(msg.data);
-        if (msg.data.success === true) {
-            tictac.execute(new Move({
-                row: msg.data.bestMove.row,
-                col: msg.data.bestMove.col,
-                state: tictac.board.cells.slice(0),
-                player: tictac.playerTurn
-            }));
-            isCupThinking = false;
-        }
-    }
-
     grid.cnt.addChild(xoCtx);
-    grid.cnt.position.set(app.screen.width / 2 - grid.cnt.width / 2, 200);
+    grid.cnt.position.set(
+        app.screen.width / 2 - grid.cnt.width / 2, 100);
+
+    let menuBg = new Graphics();
+    menuBg.beginFill(0xfff555);
+    menuBg.drawRect(0, 0, app.screen.width, 100);
+    menuBg.endFill();
+    menu.addChild(menuBg);
+    menu.position.set(0, 0);
+    stateLabel.position.set(10, 25);
+    scoreLabel.text = `X:000 O:000 Draw:000`;
+    scoreLabel.position.set(app.screen.width - scoreLabel.width - 10, 25);
+    body.addChild(grid.cnt, stateLabel, scoreLabel);
+    body.position.set(0, 100);
+    app.stage.addChild(menu, body);
+    scaleWindow(app.view);
+
     grid.cells.forEach(cell => {
         cell.interactive = true;
         cell.on('pointertap', (e) => {
@@ -73,8 +99,37 @@ function setup(loader, resources) {
             }
         });
     });
-    
-    app.stage.addChild(grid.cnt);
+
+    tictac.moveExecuteCallback = () => {
+        let state = tictac.checkWinner();
+        if (state !== null) {
+            isPaused = true;
+            if (state === 'draw') {
+                score.draw++;
+                stateLabel.text = `Game is draw`;
+            } else {
+                score[state]++;
+                stateLabel.text = `Player ${state.toUpperCase()} wins`;
+            }
+            scoreLabel.text =
+                `X:${pushZero(score.x)} O:${pushZero(score.o)} Draw:${pushZero(score.draw)}`;
+        }
+    }
+
+    worker.onmessage = msg => {
+        console.log(msg.data);
+        if (msg.data.success === true) {
+            tictac.execute(new Move({
+                row: msg.data.bestMove.row,
+                col: msg.data.bestMove.col,
+                state: tictac.board.cells.slice(0),
+                player: tictac.playerTurn
+            }));
+            isCupThinking = false;
+        }
+    }
+
+    window.addEventListener('resize', () => scaleWindow(app.view));
 
     app.ticker.add(delta => {
         if (tictac.playerTurn.isCpuPlayer && !isCupThinking) {
@@ -163,3 +218,15 @@ function drawXO(row, col, cellSize, sign, ctx) {
         ctx.endFill();
     }
 }
+
+function pushZero(score) {
+    if (score < 10)
+        return `00${score}`;
+    if (score < 99)
+        return `0${score}`;
+    return `${score}`;
+}
+
+// TODO: add undo and redo button
+// TODO: add sound and music
+// TODO: add settings
