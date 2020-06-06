@@ -1,12 +1,8 @@
-export default class Grid2d {
-    constructor({
-        rowNum,
-        colNum,
-        cells = undefined
-    }) {
-        this.rowNum = rowNum;
-        this.colNum = colNum;
-        this.cells = cells || new Array(rowNum * colNum);
+export default class Grid2D {
+    constructor(rows, cols, cells = undefined) {
+        this.rowNum = rows;
+        this.colNum = cols;
+        this.cells = cells || new Array(rows * cols);
     }
 
     *[Symbol.iterator]() {
@@ -60,7 +56,7 @@ export default class Grid2d {
     }
 
     clone() {
-        return new Grid2d({
+        return new Grid2D({
             rowNum: this.rowNum,
             colNum: this.colNum,
             cells: this.cells.slice(0)
