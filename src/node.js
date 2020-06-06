@@ -1,89 +1,79 @@
-import Grid2d from './grid2d';
-import Player from './player';
+import Grid2D from "./grid2d";
 
 export default class TicTacNode {
-    constructor({
-        board = new Grid2d(),
-        player,
-        parent = null
-    }) {
-        this.board = board;
+    constructor(state = '', player = '', parent = null) {
+        this.state = state;
         this.player = player;
         this.parent = parent;
     }
 
-    isTerminal() {
-        return this.getWinner() !== null || !this.board.cells.includes(0);
-    }
+    static getWinner(state) {
+        let grid = new Grid2D(3, 3, state.split(''));
 
-    getValue() {
-        let winner = this.getWinner();
-        if(winner == 'x')
-            return 1;
-        if(winner == 'o')
-            return -1;
-        return 0;
-    }
-
-    getSuccessors() {
-        let child, successors = [];
-
-        for (const cell of this.board) {
-            if (cell.value === 0) {
-                child = this.clone();
-                child.parent = this;
-                child.player = this.getRival();
-                child.board.setCell(cell.row, cell.col, child.player.sign);
-                successors.push(child);
-            }
-        }
-        return successors;
-    }
-
-    getWinner() {
-        let diameter1 = [...this.board]
+        let dimOne = [...grid]
             .filter(cell => cell.row == cell.col);
-        let diameter2 = [...this.board]
-            .filter(cell => cell.row == Math.abs(cell.col - (this.board.colNum - 1)));
+        let dimTwo = [...grid]
+            .filter(cell => cell.row == Math.abs(cell.col - (grid.colNum - 1)));
 
-        
-        for (const row of this.board.rows()) {
-            if (row.every(cell => cell === 'x'))
+        for (const row of grid.rows()) {
+            if (row.every(cell => cell == 'x'))
                 return 'x';
-            if (row.every(cell => cell === 'o'))
+            if (row.every(cell => cell == 'o'))
                 return 'o';
         }
 
-        for (const col of this.board.cols()) {
-            if (col.every(cell => cell === 'x'))
+        for (const col of grid.cols()) {
+            if (col.every(cell => cell == 'x'))
                 return 'x';
-            if (col.every(cell => cell === 'o'))
+            if (col.every(cell => cell == 'o'))
                 return 'o';
         }
 
-        if (diameter1.every(cell => cell.value == 'x') ||
-            diameter2.every(cell => cell.value == 'x')
+        if (dimOne.every(cell => cell.value == 'x') ||
+            dimTwo.every(cell => cell.value == 'x')
         ) return 'x';
 
-        if (diameter1.every(cell => cell.value == 'o') ||
-            diameter2.every(cell => cell.value == 'o')
+        if (dimOne.every(cell => cell.value == 'o') ||
+            dimTwo.every(cell => cell.value == 'o')
         ) return 'o';
 
         return null;
     }
 
-    getRival() {
-        return new Player({
-            sign: this.player.sign === 'x' ? 'o' : 'x',
-            isMaximization: !this.player.isMaximization
-        });
+    static getRival(player) {
+        return player === 'x' ? 'o' : 'x';
     }
 
-    clone() {
-        return new TicTacNode({
-            board: this.board.clone(),
-            player: this.player,
-            parent: this.parent
+    isTerminal() {
+        return TicTacNode.getWinner(this.state) !== null || !this.state.split('').includes('0');
+    }
+
+    getValue() {
+        let winner = TicTacNode.getWinner(this.state);
+        if (winner == 'x')
+            return 1;
+        if (winner == 'o')
+            return -1;
+        return 0;
+    }
+
+    getChilds() {
+        let child,
+            childs = [],
+            currState = this.state.split('');
+
+        currState.forEach((value, index) => {
+            if (value === '0') {
+                let nextState = currState.slice(0);
+                child = new TicTacNode();
+                child.parent = this;
+                child.player = TicTacNode.getRival(this.player);
+                nextState[index] = child.player;
+                child.state = nextState.join('');
+                childs.push(child);
+            }
         });
+
+        return childs;
     }
 }
