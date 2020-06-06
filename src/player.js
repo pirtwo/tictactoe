@@ -1,15 +1,10 @@
 export default class Player {
-    constructor({
-        sign,
-        isCpuPlayer,
-        isMaximization
-    }) {
+    constructor(sign, isCpuPlayer) {
         this.sign = sign;
         this.isCpuPlayer = isCpuPlayer;
-        this.isMaximization = isMaximization;
     }
 
     getType() {
-        return this.isMaximization ? 'max' : 'min';
+        return this.sign === 'x' ? 'max' : 'min';
     }
 }
