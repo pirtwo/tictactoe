@@ -1,10 +1,18 @@
 import Grid2D from './grid2d';
 
 export default class TicTacToe {
-    constructor(dimension) {
+    constructor(
+        dimension,
+        moveUndoCallback = undefined,
+        moveRedoCallback = undefined,
+        moveExecuteCallback = undefined
+    ) {
         this.playerOne = undefined;
         this.playerTwo = undefined;
         this.playerTurn = undefined;
+        this.moveUndoCallback = moveUndoCallback;
+        this.moveRedoCallback = moveRedoCallback;
+        this.moveExecuteCallback = moveExecuteCallback;
 
         this.undoList = [];
         this.redoList = [];
@@ -51,6 +59,9 @@ export default class TicTacToe {
             diameter2.every(cell => cell.value == 'o')
         ) return 'o';
 
+        if(!this.board.cells.includes(0))
+            return 'draw';
+
         return null;
     }
 
@@ -59,6 +70,8 @@ export default class TicTacToe {
             .push(move);
         this.updateCell(move.row, move.col, move.player.sign)
             .nextTurn();
+        if (this.moveExecuteCallback)
+            this.moveExecuteCallback(move);
         return this;
     }
 
@@ -69,6 +82,8 @@ export default class TicTacToe {
                 .nextTurn();
             this.redoList
                 .push(move);
+            if (this.moveUndoCallback)
+                this.moveUndoCallback(move);
         }
         return this;
     }
@@ -79,6 +94,8 @@ export default class TicTacToe {
             this.execute(move.row, move.col, 0);
             this.undoList
                 .push(move);
+            if (this.moveRedoCallback)
+                this.moveRedoCallback(move);
         }
         return this;
     }
