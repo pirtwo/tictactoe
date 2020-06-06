@@ -3,8 +3,6 @@ import Sound from 'pixi-sound';
 import TicTac from './tictac';
 import Player from './player';
 import Move from './move';
-import Grid2d from './grid2d';
-import Node from './node';
 
 const app = new PIXI.Application({
     antialias: true,
@@ -24,7 +22,6 @@ const {
 
 document.body.appendChild(app.view);
 
-//app.loader.add('').load(setup);
 setup();
 
 function setup(loader, resources) {
@@ -40,18 +37,10 @@ function setup(loader, resources) {
 
     let isCupThinking = false;
 
-    tictac.playerOne = new Player({
-        sign: 'x',
-        isCpuPlayer: false,
-        isMaximization: true
-    });
-
-    tictac.playerTwo = new Player({
-        sign: 'o',
-        isCpuPlayer: true,
-        isMaximization: false
-    });
-
+    // assuming the player x is a max
+    // and player o is min
+    tictac.playerOne = new Player('x', false);
+    tictac.playerTwo = new Player('o', true);
     tictac.playerTurn = tictac.playerOne;
 
     worker.onmessage = msg => {
@@ -78,24 +67,13 @@ function setup(loader, resources) {
                 tictac.execute(new Move({
                     row: cell.grid.row,
                     col: cell.grid.col,
-                    state: tictac.board.cells.slice(0),
+                    state: tictac.board.cells.join(''),
                     player: tictac.playerTurn,
                 }));
             }
         });
     });
-
-    let node = new Node({
-        board: new Grid2d({
-            rowNum: 3,
-            colNum: 3,
-            cells: [0, 0, 'o', 0, 0, 'o', 0, 0, 'o']
-        }),
-        player: tictac.playerTurn
-    });
-
-    console.log(node.isTerminal());
-
+    
     app.stage.addChild(grid.cnt);
 
     app.ticker.add(delta => {
@@ -118,8 +96,8 @@ function setup(loader, resources) {
 function cpuPlay(manager, worker, thoughtDepth) {
     worker.postMessage({
         start: true,
-        state: [...manager.board],
-        player: manager.playerTurn,
+        state: manager.board.cells.join(''),
+        player: manager.playerTurn.sign,
         thoughtDepth: thoughtDepth
     });
 }
