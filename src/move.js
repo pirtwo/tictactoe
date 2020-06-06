@@ -7,8 +7,8 @@ export default class Move {
     }) {
         this.row = row;
         this.col = col;
-        this.score = undefined;
-        this.state = state;
         this.player = player;
+        this.state = state;
+        this.score = undefined;        
     }
 }
