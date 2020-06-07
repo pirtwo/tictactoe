@@ -101,6 +101,7 @@ export default class TicTacToe {
     }
 
     reset() {
+        this.playerTurn = this.playerOne;
         this.undoList = [];
         this.redoList = [];
         this.board.fill(0);
