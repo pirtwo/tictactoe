@@ -5,6 +5,7 @@ import Player from './player';
 import Move from './move';
 import loadFont from '../lib/webfont';
 import scaleWindow from '../lib/scale';
+import SettingsScene from './scenes/settings';
 
 const app = new PIXI.Application({
     antialias: true,
@@ -22,29 +23,32 @@ const {
     Container
 } = PIXI;
 
+const btnTextStyle = new TextStyle({
+    fontFamily: 'Baumans',
+    fontSize: 35,
+    fill: 'white',
+    align: 'left',
+});
+
+const labelTextStyle = new TextStyle({
+    fontFamily: 'Baumans',
+    fontSize: 35,
+    fill: 'white',
+    align: 'left',
+});
+
 document.body.appendChild(app.view);
 loadFont(['Baumans', 'Snippet'], init);
 
 function init() {
-    setup();
+    app.loader
+        .add('atlas', './assets/sprites/atlas.json')
+        .load(setup);
 }
 
 function setup(loader, resources) {
     // game setup 
     app.stop();
-
-    const score = {
-        x: 0,
-        o: 0,
-        draw: 0
-    };
-
-    const labelTextStyle = new TextStyle({
-        fontFamily: 'Baumans',
-        fontSize: 35,
-        fill: 'white',
-        align: 'left',
-    });
 
     const
         tictac = new TicTac(3),
@@ -55,7 +59,13 @@ function setup(loader, resources) {
         menu = new Container(),
         body = new Container(),
         scoreLabel = new Text('', labelTextStyle),
-        stateLabel = new Text('', labelTextStyle);
+        stateLabel = new Text('', labelTextStyle),
+        settingScene = new SettingsScene(450, 500),
+        score = {
+            x: 0,
+            o: 0,
+            draw: 0
+        };
 
     let isPaused = false,
         isCupThinking = false;
@@ -81,7 +91,10 @@ function setup(loader, resources) {
     scoreLabel.position.set(app.screen.width - scoreLabel.width - 10, 25);
     body.addChild(grid.cnt, stateLabel, scoreLabel);
     body.position.set(0, 100);
-    app.stage.addChild(menu, body);
+
+    // scenes
+    
+    app.stage.addChild(menu, body, settingScene);
     scaleWindow(app.view);
 
     grid.cells.forEach(cell => {
@@ -226,6 +239,8 @@ function pushZero(score) {
         return `0${score}`;
     return `${score}`;
 }
+
+export default app;
 
 // TODO: add undo and redo button
 // TODO: add sound and music
