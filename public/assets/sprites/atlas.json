@@ -2,7 +2,7 @@
 
 "blue_circle.png":
 {
-	"frame": {"x":0,"y":0,"w":36,"h":36},
+	"frame": {"x":73,"y":0,"w":36,"h":36},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":36,"h":36},
@@ -10,7 +10,7 @@
 },
 "blue_tick.png":
 {
-	"frame": {"x":41,"y":0,"w":17,"h":17},
+	"frame": {"x":0,"y":0,"w":17,"h":17},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":17,"h":17},
@@ -18,7 +18,7 @@
 },
 "button.png":
 {
-	"frame": {"x":63,"y":0,"w":49,"h":45},
+	"frame": {"x":0,"y":41,"w":49,"h":45},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":49,"h":45},
@@ -26,7 +26,7 @@
 },
 "checkmark.png":
 {
-	"frame": {"x":117,"y":0,"w":21,"h":20},
+	"frame": {"x":47,"y":0,"w":21,"h":20},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":21,"h":20},
@@ -34,15 +34,23 @@
 },
 "cursor.png":
 {
-	"frame": {"x":143,"y":0,"w":20,"h":24},
+	"frame": {"x":22,"y":0,"w":20,"h":24},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":24},
 	"sourceSize": {"w":20,"h":24}
 },
+"gear.png":
+{
+	"frame": {"x":54,"y":41,"w":50,"h":50},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":50,"h":50},
+	"sourceSize": {"w":50,"h":50}
+},
 "grey_box.png":
 {
-	"frame": {"x":168,"y":0,"w":38,"h":36},
+	"frame": {"x":155,"y":0,"w":38,"h":36},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":38,"h":36},
@@ -50,15 +58,31 @@
 },
 "grey_circle.png":
 {
-	"frame": {"x":211,"y":0,"w":36,"h":36},
+	"frame": {"x":114,"y":0,"w":36,"h":36},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":36,"h":36},
 	"sourceSize": {"w":36,"h":36}
 },
+"information.png":
+{
+	"frame": {"x":109,"y":41,"w":50,"h":50},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":50,"h":50},
+	"sourceSize": {"w":50,"h":50}
+},
+"return.png":
+{
+	"frame": {"x":164,"y":41,"w":50,"h":50},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":50,"h":50},
+	"sourceSize": {"w":50,"h":50}
+},
 "track.png":
 {
-	"frame": {"x":0,"y":50,"w":190,"h":4},
+	"frame": {"x":0,"y":96,"w":190,"h":4},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":190,"h":4},
@@ -69,8 +93,8 @@
 	"version": "1.0",
 	"image": "atlas.png",
 	"format": "RGBA8888",
-	"size": {"w":247,"h":54},
+	"size": {"w":214,"h":100},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:37e3b70e6f48510ec3a3921193e9fff0:898b228aadc283665d16035f7667f14e:cbce6b53f0f49e0bf15173c25c41f876$"
+	"smartupdate": "$TexturePacker:SmartUpdate:b575a45b37600dc02ce5ceaea36598ba:074012521dc6521cb1589cfc8e00239e:cbce6b53f0f49e0bf15173c25c41f876$"
 }
 }
