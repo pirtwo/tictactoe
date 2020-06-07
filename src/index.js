@@ -3,6 +3,7 @@ import Sound from 'pixi-sound';
 import TicTac from './tictac';
 import Player from './player';
 import Move from './move';
+import Button from './ui/button';
 import loadFont from '../lib/webfont';
 import scaleWindow from '../lib/scale';
 import SettingsScene from './scenes/settings';
@@ -23,26 +24,12 @@ const {
     Container
 } = PIXI;
 
-const btnTextStyle = new TextStyle({
-    fontFamily: 'Baumans',
-    fontSize: 35,
-    fill: 'white',
-    align: 'left',
-});
-
-const labelTextStyle = new TextStyle({
-    fontFamily: 'Baumans',
-    fontSize: 35,
-    fill: 'white',
-    align: 'left',
-});
-
 document.body.appendChild(app.view);
 loadFont(['Baumans', 'Snippet'], init);
 
 function init() {
     app.loader
-        .add('atlas', './assets/sprites/atlas.json')
+        .add('tileset', './assets/sprites/atlas.json')
         .load(setup);
 }
 
@@ -51,16 +38,37 @@ function setup(loader, resources) {
     app.stop();
 
     const
+        cellSize = 250,
+        tileset = resources.tileset.textures,
         tictac = new TicTac(3),
         worker = new Worker('./js/tictac-worker.js'),
-        cellSize = 250,
         grid = createGrid(3, 3, cellSize),
         xoCtx = new Graphics(),
         menu = new Container(),
         body = new Container(),
+        titleTextStyle = new TextStyle({
+            fontFamily: 'Baumans',
+            fontSize: 50,
+            fontStyle: 'normal',
+            fontWeight: 'bold',
+            fill: ['#ffffff', '#cbf542'], // gradient
+            stroke: '#4a1850',
+            strokeThickness: 5,
+            dropShadow: true,
+            dropShadowColor: '#000000',
+            dropShadowBlur: 4,
+            dropShadowAngle: Math.PI / 6,
+            dropShadowDistance: 6,
+        }),
+        labelTextStyle = new TextStyle({
+            fontFamily: 'Baumans',
+            fontSize: 35,
+            fill: 'white',
+            align: 'left',
+        }),
         scoreLabel = new Text('', labelTextStyle),
         stateLabel = new Text('', labelTextStyle),
-        settingScene = new SettingsScene(450, 500),
+        settingsScene = new SettingsScene(500, 500),
         score = {
             x: 0,
             o: 0,
@@ -81,10 +89,71 @@ function setup(loader, resources) {
         app.screen.width / 2 - grid.cnt.width / 2, 100);
 
     let menuBg = new Graphics();
-    menuBg.beginFill(0xfff555);
+    menuBg.beginFill(0x5cd672);
     menuBg.drawRect(0, 0, app.screen.width, 100);
     menuBg.endFill();
     menu.addChild(menuBg);
+
+    let gameTitle = new Text('TicTacToe', titleTextStyle);
+    gameTitle.position.set(20, 10);
+    menu.addChild(gameTitle);
+
+    let creditsBtn = new Button({
+        width: 70,
+        height: 70,
+        frames: {
+            button: tileset['button.png']
+        },
+        pointerTapCallback: () => {
+            settingsScene.show();
+        }
+    });
+    creditsBtn.position.set(680, 15);
+    menu.addChild(creditsBtn);
+
+    let settingBtn = new Button({
+        width: 70,
+        height: 70,
+        frames: {
+            button: tileset['button.png']
+        },
+        pointerTapCallback: () => {
+            settingsScene.show();
+        }
+    });
+    settingBtn.position.set(600, 15);
+    menu.addChild(settingBtn);
+
+    let newGameBtn = new Button({
+        width: 70,
+        height: 70,
+        frames: {
+            button: tileset['button.png']
+        },
+        pointerTapCallback: () => {
+            tictac.reset();
+            isPaused = false;
+            stateLabel.text = '';
+        }
+    });
+    newGameBtn.position.set(520, 15);
+    menu.addChild(newGameBtn);
+
+    let newGameIcon = new Sprite(tileset['return.png']);
+    newGameIcon.anchor.set(0.5);
+    newGameIcon.position.set(35, 35);
+    newGameBtn.addChild(newGameIcon);
+
+    let settingsIcon = new Sprite(tileset['gear.png']);
+    settingsIcon.anchor.set(0.5);
+    settingsIcon.position.set(35, 35);
+    settingBtn.addChild(settingsIcon);
+
+    let creditsIcon = new Sprite(tileset['information.png']);
+    creditsIcon.anchor.set(0.5);
+    creditsIcon.position.set(35, 35);
+    creditsBtn.addChild(creditsIcon);
+
     menu.position.set(0, 0);
     stateLabel.position.set(10, 25);
     scoreLabel.text = `X:000 O:000 Draw:000`;
@@ -92,9 +161,9 @@ function setup(loader, resources) {
     body.addChild(grid.cnt, stateLabel, scoreLabel);
     body.position.set(0, 100);
 
-    // scenes
-    
-    app.stage.addChild(menu, body, settingScene);
+    settingsScene.hide();
+
+    app.stage.addChild(menu, body, settingsScene);
     scaleWindow(app.view);
 
     grid.cells.forEach(cell => {
@@ -242,6 +311,7 @@ function pushZero(score) {
 
 export default app;
 
-// TODO: add undo and redo button
+// TODO: add new game button
 // TODO: add sound and music
 // TODO: add settings
+// ! fix click on marked cell
