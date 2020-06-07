@@ -9,7 +9,7 @@ export default class SettingsScene extends PIXI.Container {
     constructor(width, height, ) {
         super();
 
-        let atlas = app.loader.resources.atlas.textures;
+        let tileset = app.loader.resources.tileset.textures;
         let titleTextStyle = new PIXI.TextStyle({
                 fontFamily: 'Baumans',
                 fontSize: 35,
@@ -62,39 +62,35 @@ export default class SettingsScene extends PIXI.Container {
         // Player settings
         let palyerLabel = new PIXI.Text('Play as', labelTextStyle);
         palyerLabel.position.set(20, 100);
-        this.body.addChild(palyerLabel);
-
-        let palyerXLabel = new PIXI.Text('X', labelTextStyle);
-        palyerXLabel.position.set(200, 100);
-        this.body.addChild(palyerXLabel);
+        this.body.addChild(palyerLabel);        
 
         this.playAsX = new Raido({
             width: 40,
             height: 40,
             value: true,
             frames: {
-                box: atlas['grey_circle.png'],
-                checkmark: atlas['blue_tick.png']
+                box: tileset['grey_circle.png'],
+                checkmark: tileset['blue_tick.png']
             },
             pointerTapCallback: () => {
                 this.playAsX.setValue(true);
                 this.playAsO.setValue(false);
             }
         });
-        this.playAsX.position.set(230, 100);
+        this.playAsX.position.set(200, 100);
         this.body.addChild(this.playAsX);
 
-        let playerOLabel = new PIXI.Text('O', labelTextStyle);
-        playerOLabel.position.set(300, 100);
-        this.body.addChild(playerOLabel);
+        let palyerXLabel = new PIXI.Text('X', labelTextStyle);
+        palyerXLabel.position.set(250, 100);
+        this.body.addChild(palyerXLabel);
 
         this.playAsO = new Raido({
             width: 40,
             height: 40,
             value: false,
             frames: {
-                box: atlas['grey_circle.png'],
-                checkmark: atlas['blue_tick.png']
+                box: tileset['grey_circle.png'],
+                checkmark: tileset['blue_tick.png']
             },
             pointerTapCallback: () => {
                 this.playAsX.setValue(false);
@@ -104,9 +100,58 @@ export default class SettingsScene extends PIXI.Container {
         this.playAsO.position.set(330, 100);
         this.body.addChild(this.playAsO);
 
+        let playerOLabel = new PIXI.Text('O', labelTextStyle);
+        playerOLabel.position.set(380, 100);
+        this.body.addChild(playerOLabel);        
+
+        // difficulty setting
+        let difficultyLabel = new PIXI.Text('Difficulty', labelTextStyle);
+        difficultyLabel.position.set(20, 170);
+        this.body.addChild(difficultyLabel);        
+
+        this.easyDifficulty = new Raido({
+            width: 40,
+            height: 40,
+            value: true,
+            frames: {
+                box: tileset['grey_circle.png'],
+                checkmark: tileset['blue_tick.png']
+            },
+            pointerTapCallback: () => {
+                this.easyDifficulty.setValue(true);
+                this.hardDifficulty.setValue(false);
+            }
+        });
+        this.easyDifficulty.position.set(200, 170);
+        this.body.addChild(this.easyDifficulty);
+
+        let easyLabel = new PIXI.Text('Easy', labelTextStyle);
+        easyLabel.position.set(250, 170);
+        this.body.addChild(easyLabel);
+
+        this.hardDifficulty = new Raido({
+            width: 40,
+            height: 40,
+            value: false,
+            frames: {
+                box: tileset['grey_circle.png'],
+                checkmark: tileset['blue_tick.png']
+            },
+            pointerTapCallback: () => {
+                this.easyDifficulty.setValue(false);
+                this.hardDifficulty.setValue(true);
+            }
+        });
+        this.hardDifficulty.position.set(330, 170);
+        this.body.addChild(this.hardDifficulty);
+
+        let hardLabel = new PIXI.Text('Hard', labelTextStyle);
+        hardLabel.position.set(380, 170);
+        this.body.addChild(hardLabel);
+
         // sound settings
         let soundLabel = new PIXI.Text('Sound', labelTextStyle);
-        soundLabel.position.set(20, 170);
+        soundLabel.position.set(20, 240);
         this.body.addChild(soundLabel);
 
         this.soundVol = new Slider({
@@ -115,16 +160,16 @@ export default class SettingsScene extends PIXI.Container {
             min: 0,
             max: 1,
             frames: {
-                rail: atlas['track.png'],
-                grip: atlas['blue_circle.png']
+                rail: tileset['track.png'],
+                grip: tileset['blue_circle.png']
             }
         });
-        this.soundVol.position.set(200, 200);
+        this.soundVol.position.set(200, 260);
         this.body.addChild(this.soundVol);
 
         // music settings
         let musicLabel = new PIXI.Text('Music', labelTextStyle);
-        musicLabel.position.set(20, 240);
+        musicLabel.position.set(20, 310);
         this.body.addChild(musicLabel);
 
         this.musicVol = new Slider({
@@ -133,11 +178,11 @@ export default class SettingsScene extends PIXI.Container {
             min: 0,
             max: 1,
             frames: {
-                rail: atlas['track.png'],
-                grip: atlas['blue_circle.png']
+                rail: tileset['track.png'],
+                grip: tileset['blue_circle.png']
             }
         });
-        this.musicVol.position.set(200, 270);
+        this.musicVol.position.set(200, 330);
         this.body.addChild(this.musicVol);
 
         // ok button
@@ -146,7 +191,7 @@ export default class SettingsScene extends PIXI.Container {
             height: 50,
             text: new PIXI.Text('OK', btnTextStyle),
             frames: {
-                button: atlas['button.png']
+                button: tileset['button.png']
             },
             pointerTapCallback: () => {
                 this.hide();
@@ -164,7 +209,7 @@ export default class SettingsScene extends PIXI.Container {
             height: 50,
             text: new PIXI.Text('Cancel', btnTextStyle),
             frames: {
-                button: atlas['button.png']
+                button: tileset['button.png']
             },
             pointerTapCallback: () => {
                 this.hide();
