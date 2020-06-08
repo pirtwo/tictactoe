@@ -1,15 +1,16 @@
 import * as PIXI from 'pixi.js';
 import app from '../index';
-import Panel from '../ui/panel';
 import Slider from '../ui/slider';
 import Button from '../ui/button';
 import Raido from '../ui/raido';
 
 export default class SettingsScene extends PIXI.Container {
-    constructor(width, height, ) {
+    constructor(width, height) {
         super();
 
-        let tileset = app.loader.resources.tileset.textures;
+        const resources = app.loader.resources,
+            tileset = resources.tileset.textures;
+
         let titleTextStyle = new PIXI.TextStyle({
                 fontFamily: 'Baumans',
                 fontSize: 35,
@@ -29,6 +30,12 @@ export default class SettingsScene extends PIXI.Container {
                 align: 'left',
             });
 
+        this.settings = {
+            difficulty: '',
+            playas: '',
+            soundVol: 1,
+            musicVol: 1
+        };
         this.body = new PIXI.Container();
 
         // bacdrop
@@ -59,11 +66,40 @@ export default class SettingsScene extends PIXI.Container {
         this.title.position.set(20, 10);
         this.body.addChild(this.title);
 
-        // Player settings
+        // labels
         let palyerLabel = new PIXI.Text('Play as', labelTextStyle);
         palyerLabel.position.set(20, 100);
-        this.body.addChild(palyerLabel);        
+        this.body.addChild(palyerLabel);
 
+        let palyerXLabel = new PIXI.Text('X', labelTextStyle);
+        palyerXLabel.position.set(250, 100);
+        this.body.addChild(palyerXLabel);
+
+        let playerOLabel = new PIXI.Text('O', labelTextStyle);
+        playerOLabel.position.set(380, 100);
+        this.body.addChild(playerOLabel);
+
+        let difficultyLabel = new PIXI.Text('Difficulty', labelTextStyle);
+        difficultyLabel.position.set(20, 170);
+        this.body.addChild(difficultyLabel);
+
+        let easyLabel = new PIXI.Text('Easy', labelTextStyle);
+        easyLabel.position.set(250, 170);
+        this.body.addChild(easyLabel);
+
+        let hardLabel = new PIXI.Text('Hard', labelTextStyle);
+        hardLabel.position.set(380, 170);
+        this.body.addChild(hardLabel);
+
+        let soundLabel = new PIXI.Text('Sound', labelTextStyle);
+        soundLabel.position.set(20, 240);
+        this.body.addChild(soundLabel);
+
+        let musicLabel = new PIXI.Text('Music', labelTextStyle);
+        musicLabel.position.set(20, 310);
+        this.body.addChild(musicLabel);
+
+        // controls
         this.playAsX = new Raido({
             width: 40,
             height: 40,
@@ -71,6 +107,9 @@ export default class SettingsScene extends PIXI.Container {
             frames: {
                 box: tileset['grey_circle.png'],
                 checkmark: tileset['blue_tick.png']
+            },
+            sounds: {
+                pointertap: resources.switch.sound
             },
             pointerTapCallback: () => {
                 this.playAsX.setValue(true);
@@ -80,10 +119,6 @@ export default class SettingsScene extends PIXI.Container {
         this.playAsX.position.set(200, 100);
         this.body.addChild(this.playAsX);
 
-        let palyerXLabel = new PIXI.Text('X', labelTextStyle);
-        palyerXLabel.position.set(250, 100);
-        this.body.addChild(palyerXLabel);
-
         this.playAsO = new Raido({
             width: 40,
             height: 40,
@@ -91,6 +126,9 @@ export default class SettingsScene extends PIXI.Container {
             frames: {
                 box: tileset['grey_circle.png'],
                 checkmark: tileset['blue_tick.png']
+            },
+            sounds: {
+                pointertap: resources.switch.sound
             },
             pointerTapCallback: () => {
                 this.playAsX.setValue(false);
@@ -100,15 +138,6 @@ export default class SettingsScene extends PIXI.Container {
         this.playAsO.position.set(330, 100);
         this.body.addChild(this.playAsO);
 
-        let playerOLabel = new PIXI.Text('O', labelTextStyle);
-        playerOLabel.position.set(380, 100);
-        this.body.addChild(playerOLabel);        
-
-        // difficulty setting
-        let difficultyLabel = new PIXI.Text('Difficulty', labelTextStyle);
-        difficultyLabel.position.set(20, 170);
-        this.body.addChild(difficultyLabel);        
-
         this.easyDifficulty = new Raido({
             width: 40,
             height: 40,
@@ -116,6 +145,9 @@ export default class SettingsScene extends PIXI.Container {
             frames: {
                 box: tileset['grey_circle.png'],
                 checkmark: tileset['blue_tick.png']
+            },
+            sounds: {
+                pointertap: resources.switch.sound
             },
             pointerTapCallback: () => {
                 this.easyDifficulty.setValue(true);
@@ -125,10 +157,6 @@ export default class SettingsScene extends PIXI.Container {
         this.easyDifficulty.position.set(200, 170);
         this.body.addChild(this.easyDifficulty);
 
-        let easyLabel = new PIXI.Text('Easy', labelTextStyle);
-        easyLabel.position.set(250, 170);
-        this.body.addChild(easyLabel);
-
         this.hardDifficulty = new Raido({
             width: 40,
             height: 40,
@@ -136,6 +164,9 @@ export default class SettingsScene extends PIXI.Container {
             frames: {
                 box: tileset['grey_circle.png'],
                 checkmark: tileset['blue_tick.png']
+            },
+            sounds: {
+                pointertap: resources.switch.sound
             },
             pointerTapCallback: () => {
                 this.easyDifficulty.setValue(false);
@@ -145,15 +176,6 @@ export default class SettingsScene extends PIXI.Container {
         this.hardDifficulty.position.set(330, 170);
         this.body.addChild(this.hardDifficulty);
 
-        let hardLabel = new PIXI.Text('Hard', labelTextStyle);
-        hardLabel.position.set(380, 170);
-        this.body.addChild(hardLabel);
-
-        // sound settings
-        let soundLabel = new PIXI.Text('Sound', labelTextStyle);
-        soundLabel.position.set(20, 240);
-        this.body.addChild(soundLabel);
-
         this.soundVol = new Slider({
             value: 1,
             width: 200,
@@ -162,15 +184,24 @@ export default class SettingsScene extends PIXI.Container {
             frames: {
                 rail: tileset['track.png'],
                 grip: tileset['blue_circle.png']
+            },
+            sounds: {
+                pointerdown: resources.switch.sound
+            },
+            pointerUpCallback: () => {
+                this.settings.soundVol = this.soundVol.value;
+                [
+                    resources.click.sound,
+                    resources.switch.sound,
+                    resources.win.sound,
+                    resources.lose.sound
+                ].forEach(sound => {
+                    sound.volume = this.soundVol.value;
+                });
             }
         });
         this.soundVol.position.set(200, 260);
         this.body.addChild(this.soundVol);
-
-        // music settings
-        let musicLabel = new PIXI.Text('Music', labelTextStyle);
-        musicLabel.position.set(20, 310);
-        this.body.addChild(musicLabel);
 
         this.musicVol = new Slider({
             value: 1,
@@ -180,6 +211,17 @@ export default class SettingsScene extends PIXI.Container {
             frames: {
                 rail: tileset['track.png'],
                 grip: tileset['blue_circle.png']
+            },
+            sounds: {
+                pointerdown: resources.switch.sound
+            },
+            pointerUpCallback: () => {
+                this.settings.musicVol = this.musicVol.value;
+                [
+                    resources.music.sound
+                ].forEach(music => {
+                    music.volume = this.musicVol.value;
+                });
             }
         });
         this.musicVol.position.set(200, 330);
@@ -193,7 +235,11 @@ export default class SettingsScene extends PIXI.Container {
             frames: {
                 button: tileset['button.png']
             },
+            sounds: {
+                pointerdown: resources.click.sound
+            },
             pointerTapCallback: () => {
+                this.saveSettings();
                 this.hide();
             }
         });
@@ -211,7 +257,11 @@ export default class SettingsScene extends PIXI.Container {
             frames: {
                 button: tileset['button.png']
             },
+            sounds: {
+                pointerdown: resources.click.sound
+            },
             pointerTapCallback: () => {
+                this.loadSettings();
                 this.hide();
             }
         });
@@ -226,6 +276,48 @@ export default class SettingsScene extends PIXI.Container {
             this.width / 2 - this.body.width / 2,
             this.height / 2 - this.body.height / 2
         );
+
+        this.initStorage();
+        this.loadSettings();
+    }
+
+    initStorage() {
+        let settings, storage = window.localStorage;
+        try {
+            settings = JSON.parse(storage.getItem('tictactoe'));
+            ['difficulty', 'playas', 'musicVol', 'soundVol'].forEach(key => {
+                if (!Object.keys(settings).includes(`${key}`))
+                    throw Error('setting key not found!');
+            });
+        } catch (e) {
+            storage.setItem('tictactoe', JSON.stringify(this.settings));
+        }
+    }
+
+    loadSettings() {
+        const
+            storage = window.localStorage,
+            musics = [
+                app.loader.resources.music.sound
+            ],
+            sounds = [
+                app.loader.resources.click.sound,
+                app.loader.resources.switch.sound,
+                app.loader.resources.win.sound,
+                app.loader.resources.lose.sound
+            ];
+
+        this.settings = JSON.parse(storage.getItem('tictactoe'));
+        this.musicVol.setValue(this.settings.musicVol);
+        this.soundVol.setValue(this.settings.soundVol);
+
+        musics.forEach(music => music.volume = this.settings.musicVol);
+        sounds.forEach(sound => sound.volume = this.settings.soundVol);
+    }
+
+    saveSettings(settings) {
+        let storage = window.localStorage;
+        storage.setItem('tictactoe', JSON.stringify(this.settings));
     }
 
     show() {
