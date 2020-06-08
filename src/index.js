@@ -30,6 +30,11 @@ loadFont(['Baumans', 'Snippet'], init);
 function init() {
     app.loader
         .add('tileset', './assets/sprites/atlas.json')
+        .add('music', './assets/sounds/music.mp3')
+        .add('click', './assets/sounds/click.ogg')
+        .add('switch', './assets/sounds/switch.ogg')
+        .add('win', './assets/sounds/win.ogg')
+        .add('lose', './assets/sounds/lose.ogg')
         .load(setup);
 }
 
@@ -75,8 +80,16 @@ function setup(loader, resources) {
             draw: 0
         };
 
+    const music = resources.music.sound,
+        clickSound = resources.click.sound,
+        winSound = resources.win.sound,
+        loseSound = resources.lose.sound;
+
     let isPaused = false,
         isCupThinking = false;
+
+    music.loop = true;
+    music.play();
 
     // assuming the player x is a max
     // and player o is min
@@ -104,6 +117,9 @@ function setup(loader, resources) {
         frames: {
             button: tileset['button.png']
         },
+        sounds: {
+            pointerdown: clickSound
+        },
         pointerTapCallback: () => {
             settingsScene.show();
         }
@@ -117,6 +133,9 @@ function setup(loader, resources) {
         frames: {
             button: tileset['button.png']
         },
+        sounds: {
+            pointerdown: clickSound
+        },
         pointerTapCallback: () => {
             settingsScene.show();
         }
@@ -129,6 +148,9 @@ function setup(loader, resources) {
         height: 70,
         frames: {
             button: tileset['button.png']
+        },
+        sounds: {
+            pointerdown: clickSound
         },
         pointerTapCallback: () => {
             tictac.reset();
@@ -169,9 +191,8 @@ function setup(loader, resources) {
     grid.cells.forEach(cell => {
         cell.interactive = true;
         cell.on('pointertap', (e) => {
-            console.log(cell.grid);
-
             if (!isPaused && !tictac.playerTurn.isCpuPlayer) {
+                //! should check the cell to see if it is marked before.
                 tictac.execute(new Move({
                     row: cell.grid.row,
                     col: cell.grid.col,
@@ -183,15 +204,19 @@ function setup(loader, resources) {
     });
 
     tictac.moveExecuteCallback = () => {
-        let state = tictac.checkWinner();
-        if (state !== null) {
+        let winner = tictac.checkWinner();
+        if (winner !== null) {
             isPaused = true;
-            if (state === 'draw') {
+            if (winner === 'draw') {
                 score.draw++;
                 stateLabel.text = `Game is draw`;
             } else {
-                score[state]++;
-                stateLabel.text = `Player ${state.toUpperCase()} wins`;
+                score[winner.sign]++;
+                stateLabel.text = `Player ${winner.sign.toUpperCase()} wins`;
+                if (winner.isCpuPlayer)
+                    loseSound.play();
+                else
+                    winSound.play();
             }
             scoreLabel.text =
                 `X:${pushZero(score.x)} O:${pushZero(score.o)} Draw:${pushZero(score.draw)}`;
@@ -311,7 +336,6 @@ function pushZero(score) {
 
 export default app;
 
-// TODO: add new game button
-// TODO: add sound and music
-// TODO: add settings
-// ! fix click on marked cell
+// TODO: add credits scene
+// TODO: add loading scene
+// !FIX: user can not select the occupied cell
