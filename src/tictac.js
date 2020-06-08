@@ -39,25 +39,25 @@ export default class TicTacToe {
 
         for (const row of this.board.rows()) {
             if (row.every(cell => cell === 'x'))
-                return 'x';
+                return this.playerOne;
             if (row.every(cell => cell === 'o'))
-                return 'o';
+                return this.playerTwo;
         }
 
         for (const col of this.board.cols()) {
             if (col.every(cell => cell === 'x'))
-                return 'x';
+                return this.playerOne;
             if (col.every(cell => cell === 'o'))
-                return 'o';
+                return this.playerTwo;
         }
 
         if (diameter1.every(cell => cell.value == 'x') ||
             diameter2.every(cell => cell.value == 'x')
-        ) return 'x';
+        ) return this.playerOne;
 
         if (diameter1.every(cell => cell.value == 'o') ||
             diameter2.every(cell => cell.value == 'o')
-        ) return 'o';
+        ) return this.playerTwo;
 
         if(!this.board.cells.includes(0))
             return 'draw';
