@@ -1,7 +1,7 @@
 export default class Player {
-    constructor(sign, isCpuPlayer) {
+    constructor(sign, isBot) {
         this.sign = sign;
-        this.isCpuPlayer = isCpuPlayer;
+        this.isBot = isBot;
     }
 
     getType() {
