@@ -2,21 +2,21 @@ import Node from './node';
 import Move from './move';
 import Grid2D from './grid2d';
 import minmax from './minmax';
+import shuffle from '../lib/shuffle';
 
 onmessage = (msg) => {
     console.log('worker started.');
 
     if (msg.data.start) {
         const {
-            state,        // current board state
-            player,       // current player x or o
-            thoughtDepth  // the depth for minmax search
-        } = msg.data;
-
-        const
-            moves = [],
+            state, // current board state
+            player, // current player x or o
+            thoughtDepth // the depth for minmax search
+        } = msg.data,
             currState = state.split(''),
             grid = new Grid2D(3, 3, state.split(''));
+
+        let moves = [];
 
         // calc the score of each possible move for current player.
         for (const cell of grid) {
@@ -35,15 +35,17 @@ onmessage = (msg) => {
                     // we assuming the x is max and o is min,
                     // if current player is a x, the next move will be min,
                     // if current player is a o, the next move will be max.
-                    player.sign === 'x' ? 'min' : 'max',
+                    player === 'x' ? 'min' : 'max',
                     thoughtDepth
                 );
                 moves.push(move);
             }
         }
 
+        moves = shuffle(moves);
+
         let bestMove = moves.find(move => {
-            if (player.sign === 'x')
+            if (player === 'x')
                 return move.score === Math.max.apply({}, moves.map(i => i.score));
             else
                 return move.score === Math.min.apply({}, moves.map(i => i.score));
