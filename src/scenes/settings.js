@@ -5,7 +5,7 @@ import Button from '../ui/button';
 import Raido from '../ui/raido';
 
 export default class SettingsScene extends PIXI.Container {
-    constructor(width, height) {
+    constructor(width, height, gameManager) {
         super();
 
         const resources = app.loader.resources,
@@ -30,9 +30,10 @@ export default class SettingsScene extends PIXI.Container {
                 align: 'left',
             });
 
+        this.gameManager = gameManager;
         this.settings = {
-            difficulty: '',
-            playas: '',
+            difficulty: 'easy',
+            playas: 'x',
             soundVol: 1,
             musicVol: 1
         };
@@ -112,6 +113,9 @@ export default class SettingsScene extends PIXI.Container {
                 pointertap: resources.switch.sound
             },
             pointerTapCallback: () => {
+                this.settings.playas = 'x';
+                this.gameManager.playerOne.isBot = false;
+                this.gameManager.playerTwo.isBot = true;
                 this.playAsX.setValue(true);
                 this.playAsO.setValue(false);
             }
@@ -131,6 +135,9 @@ export default class SettingsScene extends PIXI.Container {
                 pointertap: resources.switch.sound
             },
             pointerTapCallback: () => {
+                this.settings.playas = 'o';
+                this.gameManager.playerOne.isBot = true;
+                this.gameManager.playerTwo.isBot = false;
                 this.playAsX.setValue(false);
                 this.playAsO.setValue(true);
             }
@@ -150,6 +157,7 @@ export default class SettingsScene extends PIXI.Container {
                 pointertap: resources.switch.sound
             },
             pointerTapCallback: () => {
+                this.settings.difficulty = 'easy';
                 this.easyDifficulty.setValue(true);
                 this.hardDifficulty.setValue(false);
             }
@@ -169,6 +177,7 @@ export default class SettingsScene extends PIXI.Container {
                 pointertap: resources.switch.sound
             },
             pointerTapCallback: () => {
+                this.settings.difficulty = 'hard';
                 this.easyDifficulty.setValue(false);
                 this.hardDifficulty.setValue(true);
             }
@@ -308,14 +317,19 @@ export default class SettingsScene extends PIXI.Container {
             ];
 
         this.settings = JSON.parse(storage.getItem('tictactoe'));
+        this.playAsX.setValue(this.settings.playas === 'x');
+        this.playAsO.setValue(this.settings.playas === 'o');
+        this.gameManager.playerOne.isBot = !this.playAsX.value;
+        this.gameManager.playerTwo.isBot = !this.playAsO.value;
+        this.easyDifficulty.setValue(this.settings.difficulty === 'easy');
+        this.hardDifficulty.setValue(this.settings.difficulty === 'hard');
         this.musicVol.setValue(this.settings.musicVol);
         this.soundVol.setValue(this.settings.soundVol);
-
         musics.forEach(music => music.volume = this.settings.musicVol);
         sounds.forEach(sound => sound.volume = this.settings.soundVol);
     }
 
-    saveSettings(settings) {
+    saveSettings() {
         let storage = window.localStorage;
         storage.setItem('tictactoe', JSON.stringify(this.settings));
     }
