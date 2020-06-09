@@ -68,8 +68,7 @@ export default class TicTacToe {
     execute(move) {
         this.undoList
             .push(move);
-        this.updateCell(move.row, move.col, move.player.sign)
-            .nextTurn();
+        this.updateCell(move.row, move.col, move.player.sign);
         if (this.moveExecuteCallback)
             this.moveExecuteCallback(move);
         return this;
@@ -78,8 +77,7 @@ export default class TicTacToe {
     undo() {
         let move = this.undoList.pop();
         if (move) {
-            this.updateCell(move.row, move.col, 0)
-                .nextTurn();
+            this.updateCell(move.row, move.col, 0);
             this.redoList
                 .push(move);
             if (this.moveUndoCallback)
