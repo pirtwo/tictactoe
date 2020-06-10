@@ -1,10 +1,11 @@
 import * as PIXI from 'pixi.js';
 import app from '../index';
+import Scene from './scene';
 import Slider from '../ui/slider';
 import Button from '../ui/button';
 import Raido from '../ui/raido';
 
-export default class SettingsScene extends PIXI.Container {
+export default class SettingsScene extends Scene {
     constructor(width, height, gameManager) {
         super();
 
@@ -56,7 +57,7 @@ export default class SettingsScene extends PIXI.Container {
 
         // panel header
         this.header = new PIXI.Graphics();
-        this.header.beginFill(0x5cd672);
+        this.header.beginFill(0xf06292);
         this.header.drawRect(0, 0, width, 60);
         this.header.endFill();
         this.header.position.set(0, 0);
