@@ -99,16 +99,12 @@ function setup(loader, resources) {
             draw: 0
         };
 
-    const music = resources.music.sound,
-        clickSound = resources.click.sound,
+    const clickSound = resources.click.sound,
         winSound = resources.win.sound,
         loseSound = resources.lose.sound;
 
     let isPaused = false,
-        isCupThinking = false;
-
-    music.loop = true;
-    music.play();
+        isCupThinking = false;    
 
     // assuming the player x is a max
     // and player o is min
@@ -360,6 +356,4 @@ function drawXO(row, col, cellSize, sign, ctx) {
 
 export default app;
 
-// TODO: add credits scene
-// TODO: add loading scene
 // !FIX: user can not select the occupied cell
