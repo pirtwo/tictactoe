@@ -208,7 +208,9 @@ function setup(loader, resources) {
         cell.interactive = true;
         cell.on('pointertap', (e) => {
             if (!isPaused && !tictac.playerTurn.isBot) {
-                //! should check the cell to see if it is marked before.
+                // check the cell to see if it is marked before.
+                if(tictac.board.getCell(cell.grid.row,cell.grid.col) !== 0)
+                    return;
                 tictac.execute(new Move({
                     row: cell.grid.row,
                     col: cell.grid.col,
