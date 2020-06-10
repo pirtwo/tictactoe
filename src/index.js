@@ -6,14 +6,16 @@ import Move from './move';
 import Button from './ui/button';
 import loadFont from '../lib/webfont';
 import scaleWindow from '../lib/scale';
+import CreditsScene from './scenes/credits';
 import SettingsScene from './scenes/settings';
+import SplashScreen from './scenes/splash';
 
 const app = new PIXI.Application({
     antialias: true,
     autoStart: false,
     width: 768,
     height: 1024,
-    backgroundColor: 0x1099bb
+    backgroundColor: 0x9c27b0
 });
 
 const {
@@ -24,10 +26,22 @@ const {
     Container
 } = PIXI;
 
-document.body.appendChild(app.view);
+let splash = undefined;
+
 loadFont(['Baumans', 'Snippet'], init);
 
 function init() {
+    document.body.appendChild(app.view);
+    scaleWindow(app.view);
+
+    // create splash screen
+    splash = new SplashScreen({
+        width: app.screen.width,
+        height: app.screen.height
+    });
+    app.stage.addChild(splash);
+
+    // load game assets
     app.loader
         .add('tileset', './assets/sprites/atlas.json')
         .add('music', './assets/sounds/music.mp3')
@@ -36,6 +50,11 @@ function init() {
         .add('win', './assets/sounds/win.ogg')
         .add('lose', './assets/sounds/lose.ogg')
         .load(setup);
+
+    // update loading progress
+    app.loader.on('progress', loader => {
+        splash.progress.text = `loading ${loader.progress.toFixed(0)}% ...`;
+    });
 }
 
 function setup(loader, resources) {
@@ -56,7 +75,7 @@ function setup(loader, resources) {
             fontSize: 50,
             fontStyle: 'normal',
             fontWeight: 'bold',
-            fill: ['#ffffff', '#cbf542'], // gradient
+            fill: ['#ffffff', '#f9e104'], // gradient
             stroke: '#4a1850',
             strokeThickness: 5,
             dropShadow: true,
@@ -67,13 +86,13 @@ function setup(loader, resources) {
         }),
         labelTextStyle = new TextStyle({
             fontFamily: 'Baumans',
-            fontSize: 35,
+            fontStyle: 'bold',
+            fontSize: 40,
             fill: 'white',
             align: 'left',
-        }),
-        scoreLabel = new Text('', labelTextStyle),
+        }),        
         stateLabel = new Text('', labelTextStyle),
-        settingsScene = new SettingsScene(500, 500),
+        botThinkingLabel = new Text('let me think ...', labelTextStyle),
         score = {
             x: 0,
             o: 0,
@@ -97,15 +116,19 @@ function setup(loader, resources) {
     tictac.playerTwo = new Player('o', true);
     tictac.playerTurn = tictac.playerOne;
 
+    const creditsScene = new CreditsScene(500, 600);
+    const settingsScene = new SettingsScene(500, 500, tictac);
+
     grid.cnt.addChild(xoCtx);
     grid.cnt.position.set(
-        app.screen.width / 2 - grid.cnt.width / 2, 100);
+        app.screen.width / 2 - grid.cnt.width / 2, 50);
 
     let menuBg = new Graphics();
-    menuBg.beginFill(0x5cd672);
+    menuBg.beginFill(0xf06292);
     menuBg.drawRect(0, 0, app.screen.width, 100);
     menuBg.endFill();
     menu.addChild(menuBg);
+    menu.position.set(0, 0);
 
     let gameTitle = new Text('TicTacToe', titleTextStyle);
     gameTitle.position.set(20, 10);
@@ -121,7 +144,7 @@ function setup(loader, resources) {
             pointerdown: clickSound
         },
         pointerTapCallback: () => {
-            settingsScene.show();
+            creditsScene.show();
         }
     });
     creditsBtn.position.set(680, 15);
@@ -176,22 +199,19 @@ function setup(loader, resources) {
     creditsIcon.position.set(35, 35);
     creditsBtn.addChild(creditsIcon);
 
-    menu.position.set(0, 0);
-    stateLabel.position.set(10, 25);
-    scoreLabel.text = `X:000 O:000 Draw:000`;
-    scoreLabel.position.set(app.screen.width - scoreLabel.width - 10, 25);
-    body.addChild(grid.cnt, stateLabel, scoreLabel);
+    stateLabel.position.set(app.screen.width / 2 - stateLabel.width / 2, 850);
+    botThinkingLabel.position.set(app.screen.width / 2 - botThinkingLabel.width / 2, 850);
+    botThinkingLabel.visible = false;
+    body.addChild(grid.cnt, stateLabel, botThinkingLabel);
     body.position.set(0, 100);
-
+    creditsScene.hide();
     settingsScene.hide();
-
-    app.stage.addChild(menu, body, settingsScene);
-    scaleWindow(app.view);
+    app.stage.addChild(menu, body, creditsScene, settingsScene);
 
     grid.cells.forEach(cell => {
         cell.interactive = true;
         cell.on('pointertap', (e) => {
-            if (!isPaused && !tictac.playerTurn.isCpuPlayer) {
+            if (!isPaused && !tictac.playerTurn.isBot) {
                 //! should check the cell to see if it is marked before.
                 tictac.execute(new Move({
                     row: cell.grid.row,
@@ -205,6 +225,7 @@ function setup(loader, resources) {
 
     tictac.moveExecuteCallback = () => {
         let winner = tictac.checkWinner();
+        tictac.nextTurn();
         if (winner !== null) {
             isPaused = true;
             if (winner === 'draw') {
@@ -213,13 +234,12 @@ function setup(loader, resources) {
             } else {
                 score[winner.sign]++;
                 stateLabel.text = `Player ${winner.sign.toUpperCase()} wins`;
-                if (winner.isCpuPlayer)
+                if (winner.isBot)
                     loseSound.play();
                 else
                     winSound.play();
             }
-            scoreLabel.text =
-                `X:${pushZero(score.x)} O:${pushZero(score.o)} Draw:${pushZero(score.draw)}`;
+            stateLabel.position.set(app.screen.width / 2 - stateLabel.width / 2, 850);
         }
     }
 
@@ -239,10 +259,19 @@ function setup(loader, resources) {
     window.addEventListener('resize', () => scaleWindow(app.view));
 
     app.ticker.add(delta => {
-        if (!isPaused && !isCupThinking && tictac.playerTurn.isCpuPlayer) {
+        if (!isPaused && !isCupThinking && tictac.playerTurn.isBot) {
             isCupThinking = true;
-            cpuPlay(tictac, worker, 10);
+            cpuPlay(
+                tictac,
+                worker,
+                settingsScene.settings.difficulty === 'easy' ? 2 : 10
+            );
         }
+
+        if (isCupThinking)
+            botThinkingLabel.visible = true;
+        else
+            botThinkingLabel.visible = false;
 
         xoCtx.clear();
         for (let i = 0; i < 3; i++) {
@@ -251,6 +280,9 @@ function setup(loader, resources) {
             }
         }
     });
+
+    splash.ticker.destroy();
+    app.stage.removeChild(splash);
 
     app.start();
 }
@@ -271,12 +303,12 @@ function createGrid(rowNum, colNum, cellSize) {
 
     ctx.lineStyle(5, 0xffffff);
     // x-axies
-    for (let i = 0; i <= rowNum; i++) {
+    for (let i = 1; i < rowNum; i++) {
         ctx.moveTo(0, i * cellSize);
         ctx.lineTo(colNum * cellSize, i * cellSize);
     }
     // y-axies
-    for (let i = 0; i <= colNum; i++) {
+    for (let i = 1; i < colNum; i++) {
         ctx.moveTo(i * cellSize, 0);
         ctx.lineTo(i * cellSize, rowNum * cellSize);
     }
@@ -324,14 +356,6 @@ function drawXO(row, col, cellSize, sign, ctx) {
         ctx.drawCircle(x, y, size / 2);
         ctx.endFill();
     }
-}
-
-function pushZero(score) {
-    if (score < 10)
-        return `00${score}`;
-    if (score < 99)
-        return `0${score}`;
-    return `${score}`;
 }
 
 export default app;
