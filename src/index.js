@@ -90,7 +90,7 @@ function setup(loader, resources) {
             fontSize: 40,
             fill: 'white',
             align: 'left',
-        }),        
+        }),
         stateLabel = new Text('', labelTextStyle),
         botThinkingLabel = new Text('let me think ...', labelTextStyle),
         score = {
@@ -104,7 +104,7 @@ function setup(loader, resources) {
         loseSound = resources.lose.sound;
 
     let isPaused = false,
-        isCupThinking = false;    
+        isCupThinking = false;
 
     // assuming the player x is a max
     // and player o is min
@@ -115,7 +115,10 @@ function setup(loader, resources) {
     const creditsScene = new CreditsScene(500, 600);
     const settingsScene = new SettingsScene(500, 500, tictac);
 
+    xoCtx.zIndex = 1;
+    grid.cnt.sortableChildren = true;
     grid.cnt.addChild(xoCtx);
+    grid.cnt.sortChildren();
     grid.cnt.position.set(
         app.screen.width / 2 - grid.cnt.width / 2, 50);
 
@@ -175,6 +178,9 @@ function setup(loader, resources) {
             tictac.reset();
             isPaused = false;
             stateLabel.text = '';
+            // remove combo line
+            Object.keys(grid.combos)
+                .forEach(key => grid.combos[key].visible = false);
         }
     });
     newGameBtn.position.set(520, 15);
@@ -204,12 +210,17 @@ function setup(loader, resources) {
     settingsScene.hide();
     app.stage.addChild(menu, body, creditsScene, settingsScene);
 
+    splash.ticker.destroy();
+    app.stage.removeChild(splash);
+
+    window.addEventListener('resize', () => scaleWindow(app.view));
+
     grid.cells.forEach(cell => {
         cell.interactive = true;
         cell.on('pointertap', (e) => {
             if (!isPaused && !tictac.playerTurn.isBot) {
                 // check the cell to see if it is marked before.
-                if(tictac.board.getCell(cell.grid.row,cell.grid.col) !== 0)
+                if (tictac.board.getCell(cell.grid.row, cell.grid.col) !== 0)
                     return;
                 tictac.execute(new Move({
                     row: cell.grid.row,
@@ -230,12 +241,14 @@ function setup(loader, resources) {
                 score.draw++;
                 stateLabel.text = `Game is draw`;
             } else {
-                score[winner.sign]++;
-                stateLabel.text = `Player ${winner.sign.toUpperCase()} wins`;
+                let combo = findCombo(tictac.board);
+                if (combo !== null)
+                    grid.combos[combo].visible = true;
                 if (winner.isBot)
                     loseSound.play();
                 else
                     winSound.play();
+                stateLabel.text = `Player ${winner.sign.toUpperCase()} wins`;
             }
             stateLabel.position.set(app.screen.width / 2 - stateLabel.width / 2, 850);
         }
@@ -254,10 +267,8 @@ function setup(loader, resources) {
         }
     }
 
-    window.addEventListener('resize', () => scaleWindow(app.view));
-
     app.ticker.add(delta => {
-        if (!isPaused && !isCupThinking && tictac.playerTurn.isBot) {
+        if (tictac.playerTurn.isBot && !isPaused && !isCupThinking) {
             isCupThinking = true;
             cpuPlay(
                 tictac,
@@ -279,9 +290,6 @@ function setup(loader, resources) {
         }
     });
 
-    splash.ticker.destroy();
-    app.stage.removeChild(splash);
-
     app.start();
 }
 
@@ -296,6 +304,7 @@ function cpuPlay(manager, worker, thoughtDepth) {
 
 function createGrid(rowNum, colNum, cellSize) {
     let cells = [],
+        combos = {},
         cnt = new Container(),
         ctx = new Graphics();
 
@@ -311,7 +320,53 @@ function createGrid(rowNum, colNum, cellSize) {
         ctx.lineTo(i * cellSize, rowNum * cellSize);
     }
     ctx.closePath();
-    cnt.addChild(ctx)
+    ctx.zIndex = 0;
+    cnt.addChild(ctx);
+
+    let comboColor = 0xf06292;
+    // combos x-axies
+    for (let i = 0; i < rowNum; i++) {
+        ctx = new Graphics();
+        ctx.lineStyle(10, comboColor);
+        ctx.moveTo(cellSize / 2, (i * cellSize) + (cellSize / 2));
+        ctx.lineTo((colNum * cellSize) - (cellSize / 2), (i * cellSize) + (cellSize / 2));
+        ctx.closePath();
+        ctx.visible = false;
+        cnt.addChild(ctx);
+        combos[`r${i}`] = ctx;
+    }
+    // combos y-axies
+    for (let i = 0; i < colNum; i++) {
+        ctx = new Graphics();
+        ctx.lineStyle(10, comboColor);
+        ctx.moveTo((i * cellSize) + (cellSize / 2), cellSize / 2);
+        ctx.lineTo((i * cellSize) + (cellSize / 2), (rowNum * cellSize) - (cellSize / 2));
+        ctx.closePath();
+        ctx.visible = false;
+        cnt.addChild(ctx);
+        combos[`c${i}`] = ctx;
+    }
+
+    // combos diameter 1
+    ctx = new Graphics();
+    ctx.lineStyle(10, comboColor);
+    ctx.moveTo(cellSize / 2, cellSize / 2);
+    ctx.lineTo((colNum * cellSize) - (cellSize / 2), (rowNum * cellSize) - (cellSize / 2));
+    ctx.closePath();
+    ctx.visible = false;
+    cnt.addChild(ctx);
+    combos[`d0`] = ctx;
+
+    // combos diameter 2
+    ctx = new Graphics();
+    ctx.lineStyle(10, comboColor);
+    ctx.moveTo((colNum * cellSize) - (cellSize / 2), cellSize / 2);
+    ctx.lineTo(cellSize / 2, (rowNum * cellSize) - (cellSize / 2));
+    ctx.closePath();
+    ctx.visible = false;
+    cnt.addChild(ctx);
+    combos[`d1`] = ctx;
+    Object.keys(combos).forEach(key => combos[key].zIndex = 2);
 
     // create interactive cells
     for (let i = 0; i < rowNum; i++) {
@@ -328,9 +383,11 @@ function createGrid(rowNum, colNum, cellSize) {
             cnt.addChild(ctx);
         }
     }
+
     return {
         cnt,
-        cells
+        cells,
+        combos
     };
 }
 
@@ -356,6 +413,33 @@ function drawXO(row, col, cellSize, sign, ctx) {
     }
 }
 
+function findCombo(board) {
+    let diameter1 = [...board]
+        .filter(cell => cell.row == cell.col);
+    let diameter2 = [...board]
+        .filter(cell => cell.row == Math.abs(cell.col - (board.colNum - 1)));
+
+    for (const [index, row] of [...board.rows()].entries()) {
+        if (row.every(cell => cell === 'x') || row.every(cell => cell === 'o'))
+            return `r${index}`;
+    }
+
+    for (const [index, col] of [...board.cols()].entries()) {
+        if (col.every(cell => cell === 'x') || col.every(cell => cell === 'o'))
+            return `c${index}`;
+    }
+
+    if (diameter1.every(cell => cell.value == 'x') ||
+        diameter1.every(cell => cell.value == 'o')
+    ) return "d0";
+
+    if (diameter2.every(cell => cell.value == 'x') ||
+        diameter2.every(cell => cell.value == 'o')
+    ) return "d1";
+
+    return null;
+}
+
 export default app;
 
-// !FIX: user can not select the occupied cell
+// TODO: add PWA install
