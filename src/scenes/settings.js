@@ -326,11 +326,7 @@ export default class SettingsScene extends Scene {
         this.hardDifficulty.setValue(this.settings.difficulty === 'hard');
         this.musicVol.setValue(this.settings.musicVol);
         this.soundVol.setValue(this.settings.soundVol);
-        musics.forEach(music => {
-            music.volume = this.settings.musicVol
-            music.loop = true;
-            music.play();
-        });
+        musics.forEach(music => music.volume = this.settings.musicVol);
         sounds.forEach(sound => sound.volume = this.settings.soundVol);
 
     }

@@ -99,7 +99,9 @@ function setup(loader, resources) {
             draw: 0
         };
 
-    const clickSound = resources.click.sound,
+    const 
+        music = resources.music.sound,
+        clickSound = resources.click.sound,
         winSound = resources.win.sound,
         loseSound = resources.lose.sound;
 
@@ -212,6 +214,9 @@ function setup(loader, resources) {
 
     splash.ticker.destroy();
     app.stage.removeChild(splash);
+
+    music.loop = true;
+    music.play();
 
     window.addEventListener('resize', () => scaleWindow(app.view));
 
