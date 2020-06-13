@@ -278,7 +278,7 @@ function setup(loader, resources) {
             cpuPlay(
                 tictac,
                 worker,
-                settingsScene.settings.difficulty === 'easy' ? 2 : 10
+                settingsScene.settings.difficulty === 'easy' ? 2 : 5
             );
         }
 
@@ -447,4 +447,5 @@ function findCombo(board) {
 
 export default app;
 
+// TODO: add game manager
 // TODO: add PWA install
