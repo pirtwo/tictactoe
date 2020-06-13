@@ -1,0 +1,21 @@
+{
+    "short_name": "TicTacToe",
+    "name": "TicTacToe",
+    "description": "Awsome TicTacToe game.",
+    "icons": [{
+            "src": "/icons/icon_192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/icons/icon_512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": "/index.html",
+    "scope": "/",    
+    "display": "fullscreen",
+    "theme_color": "#4588fb",
+    "background_color": "#4588fb"
+}

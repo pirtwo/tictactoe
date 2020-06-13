@@ -293,6 +293,8 @@ function setup(loader, resources) {
     });
 
     app.start();
+
+    registerServiceWorker();
 }
 
 function cpuPlay(manager, worker, thoughtDepth) {
@@ -442,6 +444,20 @@ function findCombo(board) {
     return null;
 }
 
-export default app;
+/**
+ * registers a service worker for PWA application.
+ */
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(registration => {
+                console.log('SW registered');
+            }).catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+            });
+    } else {
+        console.log('no service worker!!!');
+    }
+}
 
-// TODO: add PWA install
+export default app;
