@@ -62,7 +62,7 @@ export default class CreditsScene extends Scene {
         this.body.addChild(this.title);
 
         let infoText = new PIXI.Text(
-            "This game is a PWA web app, you can install it on your chrome web browser or add it to your android device home screen.\n\ncreated by:\nhttps://github.com/ultimatecombo\n\ncredits goes to:\nAssets: https://www.kenney.nl\nmusic: http://dig.ccmixter.org/\npeople/admiralbob77",
+            "This game is a progressive web app (PWA), you can install it on your chrome web browser or add it to your android device home screen.\n\ncredits goes to:\nAssets: https://www.kenney.nl\nmusic: http://dig.ccmixter.org/\npeople/admiralbob77\n\ncreated by:\nhttps://github.com/ultimatecombo",
             labelTextStyle
         );        
         infoText.position.set(20, 70);
