@@ -196,9 +196,7 @@ function setup(loader, resources) {
     creditsBtn.addChild(creditsIcon);
 
     stateLabel.position.set(app.screen.width / 2 - stateLabel.width / 2, 850);
-    botThinkingLabel.position.set(app.screen.width / 2 - botThinkingLabel.width / 2, 850);
-    botThinkingLabel.visible = false;
-    body.addChild(grid.cnt, stateLabel, botThinkingLabel);
+    body.addChild(grid.cnt, stateLabel);
     body.position.set(0, 100);
     app.stage.addChild(menu, body, creditsScene, settingsScene);
 
@@ -279,10 +277,9 @@ function setup(loader, resources) {
             );
         }
 
-        if (isCupThinking)
-            botThinkingLabel.visible = true;
-        else
-            botThinkingLabel.visible = false;
+        if (!isPaused)
+            stateLabel.text = isCupThinking ? `Let me think...` : `Your turn`;
+        stateLabel.position.set(app.screen.width / 2 - stateLabel.width / 2, 850);
 
         xoCtx.clear();
         for (let i = 0; i < 3; i++) {
