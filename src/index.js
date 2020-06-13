@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import Sound from 'pixi-sound';
-import TicTac from './tictac';
+import TicTac from './game-manager';
 import Player from './player';
 import Move from './move';
 import Button from './ui/button';
@@ -99,7 +99,7 @@ function setup(loader, resources) {
             draw: 0
         };
 
-    const 
+    const
         music = resources.music.sound,
         clickSound = resources.click.sound,
         winSound = resources.win.sound,
@@ -116,6 +116,8 @@ function setup(loader, resources) {
 
     const creditsScene = new CreditsScene(500, 600);
     const settingsScene = new SettingsScene(500, 500, tictac);
+    creditsScene.hide();
+    settingsScene.hide();
 
     xoCtx.zIndex = 1;
     grid.cnt.sortableChildren = true;
@@ -178,11 +180,6 @@ function setup(loader, resources) {
         },
         pointerTapCallback: () => {
             tictac.reset();
-            isPaused = false;
-            stateLabel.text = '';
-            // remove combo line
-            Object.keys(grid.combos)
-                .forEach(key => grid.combos[key].visible = false);
         }
     });
     newGameBtn.position.set(520, 15);
@@ -208,8 +205,6 @@ function setup(loader, resources) {
     botThinkingLabel.visible = false;
     body.addChild(grid.cnt, stateLabel, botThinkingLabel);
     body.position.set(0, 100);
-    creditsScene.hide();
-    settingsScene.hide();
     app.stage.addChild(menu, body, creditsScene, settingsScene);
 
     splash.ticker.destroy();
@@ -257,6 +252,14 @@ function setup(loader, resources) {
             }
             stateLabel.position.set(app.screen.width / 2 - stateLabel.width / 2, 850);
         }
+    }
+
+    tictac.boardResetCallback = () => {
+        // remove combo line
+        isPaused = false;
+        stateLabel.text = '';
+        Object.keys(grid.combos)
+            .forEach(key => grid.combos[key].visible = false);
     }
 
     worker.onmessage = msg => {
@@ -447,5 +450,4 @@ function findCombo(board) {
 
 export default app;
 
-// TODO: add game manager
 // TODO: add PWA install
