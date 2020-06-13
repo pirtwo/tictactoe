@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import Sound from 'pixi-sound';
-import TicTac from './game-manager';
+import BoardManager from './board-manager';
 import Player from './player';
 import Move from './move';
 import Button from './ui/button';
@@ -64,7 +64,7 @@ function setup(loader, resources) {
     const
         cellSize = 250,
         tileset = resources.tileset.textures,
-        tictac = new TicTac(3),
+        boardManager = new BoardManager(3),
         worker = new Worker('./js/tictac-worker.js'),
         grid = createGrid(3, 3, cellSize),
         xoCtx = new Graphics(),
@@ -92,12 +92,7 @@ function setup(loader, resources) {
             align: 'left',
         }),
         stateLabel = new Text('', labelTextStyle),
-        botThinkingLabel = new Text('let me think ...', labelTextStyle),
-        score = {
-            x: 0,
-            o: 0,
-            draw: 0
-        };
+        botThinkingLabel = new Text('let me think ...', labelTextStyle);
 
     const
         music = resources.music.sound,
@@ -110,12 +105,12 @@ function setup(loader, resources) {
 
     // assuming the player x is a max
     // and player o is min
-    tictac.playerOne = new Player('x', false);
-    tictac.playerTwo = new Player('o', true);
-    tictac.playerTurn = tictac.playerOne;
+    boardManager.playerOne = new Player('x', false);
+    boardManager.playerTwo = new Player('o', true);
+    boardManager.playerTurn = boardManager.playerOne;
 
     const creditsScene = new CreditsScene(500, 600);
-    const settingsScene = new SettingsScene(500, 500, tictac);
+    const settingsScene = new SettingsScene(500, 500, boardManager);
     creditsScene.hide();
     settingsScene.hide();
 
@@ -179,7 +174,7 @@ function setup(loader, resources) {
             pointerdown: clickSound
         },
         pointerTapCallback: () => {
-            tictac.reset();
+            boardManager.reset();
         }
     });
     newGameBtn.position.set(520, 15);
@@ -218,30 +213,29 @@ function setup(loader, resources) {
     grid.cells.forEach(cell => {
         cell.interactive = true;
         cell.on('pointertap', (e) => {
-            if (!isPaused && !tictac.playerTurn.isBot) {
+            if (!isPaused && !boardManager.playerTurn.isBot) {
                 // check the cell to see if it is marked before.
-                if (tictac.board.getCell(cell.grid.row, cell.grid.col) !== 0)
+                if (boardManager.board.getCell(cell.grid.row, cell.grid.col) !== 0)
                     return;
-                tictac.execute(new Move({
+                boardManager.execute(new Move({
                     row: cell.grid.row,
                     col: cell.grid.col,
-                    state: tictac.board.cells.join(''),
-                    player: tictac.playerTurn,
+                    state: boardManager.board.cells.join(''),
+                    player: boardManager.playerTurn,
                 }));
             }
         });
     });
 
-    tictac.moveExecuteCallback = () => {
-        let winner = tictac.checkWinner();
-        tictac.nextTurn();
+    boardManager.moveExecuteCallback = () => {
+        let winner = boardManager.checkWinner();
+        boardManager.nextTurn();
         if (winner !== null) {
             isPaused = true;
             if (winner === 'draw') {
-                score.draw++;
                 stateLabel.text = `Game is draw`;
             } else {
-                let combo = findCombo(tictac.board);
+                let combo = findCombo(boardManager.board);
                 if (combo !== null)
                     grid.combos[combo].visible = true;
                 if (winner.isBot)
@@ -254,7 +248,7 @@ function setup(loader, resources) {
         }
     }
 
-    tictac.boardResetCallback = () => {
+    boardManager.boardResetCallback = () => {
         // remove combo line
         isPaused = false;
         stateLabel.text = '';
@@ -265,21 +259,21 @@ function setup(loader, resources) {
     worker.onmessage = msg => {
         console.log(msg.data);
         if (msg.data.success === true) {
-            tictac.execute(new Move({
+            boardManager.execute(new Move({
                 row: msg.data.bestMove.row,
                 col: msg.data.bestMove.col,
-                state: tictac.board.cells.slice(0),
-                player: tictac.playerTurn
+                state: boardManager.board.cells.slice(0),
+                player: boardManager.playerTurn
             }));
             isCupThinking = false;
         }
     }
 
     app.ticker.add(delta => {
-        if (tictac.playerTurn.isBot && !isPaused && !isCupThinking) {
+        if (boardManager.playerTurn.isBot && !isPaused && !isCupThinking) {
             isCupThinking = true;
             cpuPlay(
-                tictac,
+                boardManager,
                 worker,
                 settingsScene.settings.difficulty === 'easy' ? 2 : 5
             );
@@ -293,7 +287,7 @@ function setup(loader, resources) {
         xoCtx.clear();
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
-                drawXO(i, j, cellSize, tictac.board.getCell(i, j), xoCtx);
+                drawXO(i, j, cellSize, boardManager.board.getCell(i, j), xoCtx);
             }
         }
     });
