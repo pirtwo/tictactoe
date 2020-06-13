@@ -6,7 +6,7 @@ import Button from '../ui/button';
 import Raido from '../ui/raido';
 
 export default class SettingsScene extends Scene {
-    constructor(width, height, gameManager) {
+    constructor(width, height, boardManager) {
         super();
 
         const resources = app.loader.resources,
@@ -31,7 +31,7 @@ export default class SettingsScene extends Scene {
                 align: 'left',
             });
 
-        this.gameManager = gameManager;
+        this.boardManager = boardManager;
         this.settings = {
             difficulty: 'easy',
             playas: 'x',
@@ -245,9 +245,9 @@ export default class SettingsScene extends Scene {
                 pointerdown: resources.click.sound
             },
             pointerTapCallback: () => {
-                this.gameManager.playerOne.isBot = !this.playAsX.value;
-                this.gameManager.playerTwo.isBot = !this.playAsO.value;
-                this.gameManager.reset();
+                this.boardManager.playerOne.isBot = !this.playAsX.value;
+                this.boardManager.playerTwo.isBot = !this.playAsO.value;
+                this.boardManager.reset();
                 this.saveSettings();
                 this.hide();
             }
@@ -319,8 +319,8 @@ export default class SettingsScene extends Scene {
         this.settings = JSON.parse(storage.getItem('tictactoe'));
         this.playAsX.setValue(this.settings.playas === 'x');
         this.playAsO.setValue(this.settings.playas === 'o');
-        this.gameManager.playerOne.isBot = !this.playAsX.value;
-        this.gameManager.playerTwo.isBot = !this.playAsO.value;
+        this.boardManager.playerOne.isBot = !this.playAsX.value;
+        this.boardManager.playerTwo.isBot = !this.playAsO.value;
         this.easyDifficulty.setValue(this.settings.difficulty === 'easy');
         this.hardDifficulty.setValue(this.settings.difficulty === 'hard');
         this.musicVol.setValue(this.settings.musicVol);
