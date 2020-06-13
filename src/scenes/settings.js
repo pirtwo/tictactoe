@@ -115,8 +115,6 @@ export default class SettingsScene extends Scene {
             },
             pointerTapCallback: () => {
                 this.settings.playas = 'x';
-                this.gameManager.playerOne.isBot = false;
-                this.gameManager.playerTwo.isBot = true;
                 this.playAsX.setValue(true);
                 this.playAsO.setValue(false);
             }
@@ -137,8 +135,6 @@ export default class SettingsScene extends Scene {
             },
             pointerTapCallback: () => {
                 this.settings.playas = 'o';
-                this.gameManager.playerOne.isBot = true;
-                this.gameManager.playerTwo.isBot = false;
                 this.playAsX.setValue(false);
                 this.playAsO.setValue(true);
             }
@@ -249,6 +245,9 @@ export default class SettingsScene extends Scene {
                 pointerdown: resources.click.sound
             },
             pointerTapCallback: () => {
+                this.gameManager.playerOne.isBot = !this.playAsX.value;
+                this.gameManager.playerTwo.isBot = !this.playAsO.value;
+                this.gameManager.reset();
                 this.saveSettings();
                 this.hide();
             }
@@ -328,7 +327,6 @@ export default class SettingsScene extends Scene {
         this.soundVol.setValue(this.settings.soundVol);
         musics.forEach(music => music.volume = this.settings.musicVol);
         sounds.forEach(sound => sound.volume = this.settings.soundVol);
-
     }
 
     saveSettings() {
