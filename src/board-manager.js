@@ -1,11 +1,12 @@
 import Grid2D from './grid2d';
 
-export default class TicTacToe {
+export default class BoardManager {
     constructor(
         dimension,
         moveUndoCallback = undefined,
         moveRedoCallback = undefined,
-        moveExecuteCallback = undefined
+        moveExecuteCallback = undefined,
+        boardResetCallback = undefined
     ) {
         this.playerOne = undefined;
         this.playerTwo = undefined;
@@ -13,6 +14,7 @@ export default class TicTacToe {
         this.moveUndoCallback = moveUndoCallback;
         this.moveRedoCallback = moveRedoCallback;
         this.moveExecuteCallback = moveExecuteCallback;
+        this.boardResetCallback = boardResetCallback;
 
         this.undoList = [];
         this.redoList = [];
@@ -59,7 +61,7 @@ export default class TicTacToe {
             diameter2.every(cell => cell.value == 'o')
         ) return this.playerTwo;
 
-        if(!this.board.cells.includes(0))
+        if (!this.board.cells.includes(0))
             return 'draw';
 
         return null;
@@ -103,6 +105,8 @@ export default class TicTacToe {
         this.undoList = [];
         this.redoList = [];
         this.board.fill(0);
+        if (this.boardResetCallback)
+            this.boardResetCallback();
         return this;
     }
 }
