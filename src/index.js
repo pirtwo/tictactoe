@@ -91,8 +91,7 @@ function setup(loader, resources) {
             fill: 'white',
             align: 'left',
         }),
-        stateLabel = new Text('', labelTextStyle),
-        botThinkingLabel = new Text('let me think ...', labelTextStyle);
+        stateLabel = new Text('', labelTextStyle);
 
     const
         music = resources.music.sound,
@@ -254,8 +253,7 @@ function setup(loader, resources) {
             .forEach(key => grid.combos[key].visible = false);
     }
 
-    worker.onmessage = msg => {
-        console.log(msg.data);
+    worker.onmessage = msg => {     
         if (msg.data.success === true) {
             boardManager.execute(new Move({
                 row: msg.data.bestMove.row,

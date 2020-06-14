@@ -4,9 +4,7 @@ import Grid2D from './grid2d';
 import minmax from './minmax';
 import shuffle from '../lib/shuffle';
 
-onmessage = (msg) => {
-    console.log('worker started.');
-
+onmessage = (msg) => {   
     if (msg.data.start) {
         const {
             state, // current board state
@@ -58,7 +56,5 @@ onmessage = (msg) => {
                 col: bestMove.col
             }
         });
-
-        console.log('worker finished.');
     }
 }
