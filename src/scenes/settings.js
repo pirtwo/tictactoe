@@ -35,8 +35,8 @@ export default class SettingsScene extends Scene {
         this.settings = {
             difficulty: 'easy',
             playas: 'x',
-            soundVol: 1,
-            musicVol: 1
+            soundVol: 0.1,
+            musicVol: 0.1
         };
         this.body = new PIXI.Container();
 
